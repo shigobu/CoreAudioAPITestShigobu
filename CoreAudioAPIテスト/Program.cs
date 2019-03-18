@@ -22,7 +22,8 @@ namespace CoreAudioAPIテスト
                 {
                     device = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
                 }
-                AudioSessionManager sessionManager = device.AudioSessionManager;
+				float MasterVolumeLevel = device.AudioEndpointVolume.MasterVolumeLevelScalar;
+				AudioSessionManager sessionManager = device.AudioSessionManager;
                 for (float i = 100; i >= 0; i -= 1f)
                 {
                     foreach (var item in sessionManager.Sessions)
@@ -42,7 +43,7 @@ namespace CoreAudioAPIテスト
                         item.SimpleAudioVolume.MasterVolume = ((float)100 / 100.0f);
                     }
                 }
-                device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float)40 / 100.0f);
+                device.AudioEndpointVolume.MasterVolumeLevelScalar = MasterVolumeLevel;
             }
             finally
             {
