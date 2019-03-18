@@ -15,29 +15,42 @@ namespace CoreAudioAPIテスト
             System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess();
             int pid = p.Id;
 
-            MMDevice device;
-            MMDeviceEnumerator DevEnum = new MMDeviceEnumerator();
-            device = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
-            AudioSessionManager sessionManager = device.AudioSessionManager;
-            for (float i = 100; i >= 0; i -= 1f)
+            MMDevice device = null;
+            try
             {
+                using (MMDeviceEnumerator DevEnum = new MMDeviceEnumerator())
+                {
+                    device = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
+                }
+                AudioSessionManager sessionManager = device.AudioSessionManager;
+                for (float i = 100; i >= 0; i -= 1f)
+                {
+                    foreach (var item in sessionManager.Sessions)
+                    {
+                        if (item.ProcessID != (uint)pid)
+                        {
+                            item.SimpleAudioVolume.MasterVolume = ((float)i / 100.0f);
+                        }                
+                    }
+                    System.Threading.Thread.Sleep(50);
+                }
+                //元の音量に戻す
                 foreach (var item in sessionManager.Sessions)
                 {
                     if (item.ProcessID != (uint)pid)
                     {
-                        item.SimpleAudioVolume.MasterVolume = ((float)i / 100.0f);
-                    }                
+                        item.SimpleAudioVolume.MasterVolume = ((float)100 / 100.0f);
+                    }
                 }
-                System.Threading.Thread.Sleep(50);
+                device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float)40 / 100.0f);
             }
-            foreach (var item in sessionManager.Sessions)
+            finally
             {
-                if (item.ProcessID != (uint)pid)
+                if (device != null)
                 {
-                    item.SimpleAudioVolume.MasterVolume = ((float)100 / 100.0f);
+                    device.Dispose();
                 }
             }
-            device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float)40 / 100.0f);
         }
     }
 }
