@@ -13,20 +13,31 @@ namespace CoreAudioAPIテスト
         {
             //自分自身のプロセスを取得する
             System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess();
-            var pid = p.Id;
+            int pid = p.Id;
 
             MMDevice device;
             MMDeviceEnumerator DevEnum = new MMDeviceEnumerator();
             device = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
             AudioSessionManager sessionManager = device.AudioSessionManager;
+            for (float i = 100; i >= 0; i -= 1f)
+            {
+                foreach (var item in sessionManager.Sessions)
+                {
+                    if (item.ProcessID != (uint)pid)
+                    {
+                        item.SimpleAudioVolume.MasterVolume = ((float)i / 100.0f);
+                    }                
+                }
+                System.Threading.Thread.Sleep(50);
+            }
             foreach (var item in sessionManager.Sessions)
             {
                 if (item.ProcessID != (uint)pid)
                 {
-                    item.SimpleAudioVolume.MasterVolume = 1f;
-                }                
+                    item.SimpleAudioVolume.MasterVolume = ((float)100 / 100.0f);
+                }
             }
-            //device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float)10 / 100.0f);
+            device.AudioEndpointVolume.MasterVolumeLevelScalar = ((float)40 / 100.0f);
         }
     }
 }
