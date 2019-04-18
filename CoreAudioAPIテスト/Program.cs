@@ -47,6 +47,7 @@ namespace CoreAudioAPIテスト
             }
             finally
             {
+                //後処理
                 if (device != null)
                 {
                     device.Dispose();
